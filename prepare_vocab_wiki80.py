@@ -46,6 +46,7 @@ def main():
     dev_tokens = load_tokens(dev_file)
     test_tokens = load_tokens(test_file)
     if args.lower:
+        print(f"使用小写，token全部转换成小写的")
         train_tokens, dev_tokens, test_tokens = [[t.lower() for t in tokens] for tokens in\
                 (train_tokens, dev_tokens, test_tokens)]
 
@@ -54,7 +55,7 @@ def main():
     glove_vocab = vocab.load_glove_vocab(wv_file, wv_dim)
     print("从glove中加载了 {} 个单词的向量".format(len(glove_vocab)))
     
-    print("开始构建vocab...")
+    print("使用训练集构建vocab...")
     v = build_vocab(train_tokens, glove_vocab, args.min_freq)
 
     print("开始计算 oov...")
@@ -62,7 +63,7 @@ def main():
     for dname, d in datasets.items():
         # 所有单词数和所有不在vocab中的单词数
         total, oov = count_oov(d, v)
-        print("数据{} oov单词数{}，总的单词数{}， 占比({:.2f}%)".format(dname, oov, total, oov*100.0/total))
+        print("数据 {} oov单词数{}，所有单词数{}， 占比({:.2f}%)".format(dname, oov, total, oov*100.0/total))
     
     print("开始构建 embeddings...")
     embedding = vocab.build_embedding(wv_file, v, wv_dim)

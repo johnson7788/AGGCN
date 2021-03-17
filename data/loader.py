@@ -13,17 +13,25 @@ class DataLoader(object):
     """
     Load data from json files, preprocess and prepare batches.
     """
-    def __init__(self, filename, batch_size, opt, vocab, evaluation=False):
+    def __init__(self, filename, batch_size, opt, vocab, evaluation=False, load_wiki80=False):
         self.batch_size = batch_size
         self.opt = opt
         self.vocab = vocab
         self.eval = evaluation
-        self.label2id = constant.LABEL_TO_ID
+        if load_wiki80:
+            self.label2id = constant.WIKI80_LABEL_TO_ID
+            data = []
+            with open(filename) as infile:
+                for line in infile:
+                    data.append(json.loads(line))
+        else:
+            self.label2id = constant.LABEL_TO_ID
+            with open(filename) as infile:
+                data = json.load(infile)
 
-        with open(filename) as infile:
-            data = json.load(infile)
         self.raw_data = data
-        data = self.preprocess(data, vocab, opt)
+        #处理数据
+        data = self.preprocess(data, vocab, opt, wiki80=load_wiki80)
 
         # shuffle for training
         if not evaluation:
@@ -39,18 +47,23 @@ class DataLoader(object):
         self.data = data
         print("{} batches created for {}".format(len(data), filename))
 
-    def preprocess(self, data, vocab, opt):
+    def preprocess(self, data, vocab, opt, wiki80=False):
         """ Preprocess the data and convert to ids. """
         processed = []
         for d in data:
             tokens = list(d['token'])
             if opt['lower']:
                 tokens = [t.lower() for t in tokens]
-            # anonymize tokens
-            ss, se = d['subj_start'], d['subj_end']
-            os, oe = d['obj_start'], d['obj_end']
-            tokens[ss:se+1] = ['SUBJ-'+d['subj_type']] * (se-ss+1)
-            tokens[os:oe+1] = ['OBJ-'+d['obj_type']] * (oe-os+1)
+
+            if wiki80:
+                # anonymize tokens
+                ss, se = d['h']['pos'][0], d['h']['pos'][1]
+                os, oe = d['t']['pos'][0], d['t']['pos'][1]
+            else:
+                ss, se = d['subj_start'], d['subj_end']
+                os, oe = d['obj_start'], d['obj_end']
+                tokens[ss:se+1] = ['SUBJ-'+d['subj_type']] * (se-ss+1)
+                tokens[os:oe+1] = ['OBJ-'+d['obj_type']] * (oe-os+1)
             tokens = map_to_ids(tokens, vocab.word2id)
             pos = map_to_ids(d['stanford_pos'], constant.POS_TO_ID)
             ner = map_to_ids(d['stanford_ner'], constant.NER_TO_ID)

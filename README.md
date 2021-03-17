@@ -39,16 +39,31 @@ chmod +x download.sh; ./download.sh
 ```
 python3 prepare_vocab.py --data_dir dataset/tacred --vocab_dir dataset/vocab --glove_dir dataset/glove
 
-python3 prepare_vocab_wiki80.py --data_dir dataset/wiki80 --vocab_dir dataset/vocab --glove_dir dataset/glove
+# wiki80需要切换到branch wiki80上
+python3 prepare_vocab_wiki80.py --data_dir dataset/wiki80 --vocab_dir dataset/vocab --glove_dir dataset/glove --lower
 
+从glove中加载了 2195892 个单词的向量
+构建的vocab为53918个单词，原始的token有 91977 个单词
+数据 train oov单词数50874，总的单词数1256509， 占比(4.05%)
+数据 dev oov单词数8571，总的单词数140824， 占比(6.09%)
+数据 test oov单词数8571，总的单词数140824， 占比(6.09%)
+
+如果不加小写, 不用小写的话，oov更少
+python3 prepare_vocab_wiki80.py --data_dir dataset/wiki80 --vocab_dir dataset/vocab --glove_dir dataset/glove
+从glove中加载了 2195892 个单词的向量
+构建的vocab为81924个单词，原始的token有 100436 个单词
+数据 train oov单词数22492，所有单词数1256509， 占比(1.79%)
+数据 dev oov单词数7802，所有单词数140824， 占比(5.54%)
+数据 test oov单词数7802，所有单词数140824， 占比(5.54%)
 ```
 这将把单词和单词向量以numpy矩阵的形式写到目录`dataset/vocab`中。
-  
 
 ## Training
 要训练AGGCN模型，运行。
 ```
 bash train_aggcn.sh 1
+或
+python train.py --data_dir dataset/wiki80 --vocab_dir dataset/vocab
 ```
 模型checkpoint和日志将被保存到`./saved_models/01`。
 关于其他参数的使用细节，请参考`train.py`。

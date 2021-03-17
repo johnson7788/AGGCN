@@ -43,7 +43,7 @@ parser.add_argument('--sublayer_second', type=int, default=4, help='Num of the s
 parser.add_argument('--pooling', choices=['max', 'avg', 'sum'], default='max', help='Pooling function type. Default max.')
 parser.add_argument('--pooling_l2', type=float, default=0.002, help='L2-penalty for all pooling output.')
 parser.add_argument('--mlp_layers', type=int, default=1, help='Number of output mlp layers.')
-parser.add_argument('--no_adj', dest='no_adj', action='store_true', help="Zero out adjacency matrix for ablation.")
+parser.add_argument('--no_adj', dest='no_adj', action='store_true', help="Zero out邻接矩阵进行消融。")
 
 parser.add_argument('--no-rnn', dest='rnn', action='store_false', help='Do not use RNN layer.')
 parser.add_argument('--rnn_hidden', type=int, default=300, help='RNN hidden state size.')
@@ -87,7 +87,7 @@ opt = vars(args)
 label2id = constant.LABEL_TO_ID
 opt['num_class'] = len(label2id)
 
-# load vocab
+print(f"加载词向量和词嵌入")
 vocab_file = opt['vocab_dir'] + '/vocab.pkl'
 vocab = Vocab(vocab_file, load=True)
 opt['vocab_size'] = vocab.size
@@ -97,9 +97,13 @@ assert emb_matrix.shape[0] == vocab.size
 assert emb_matrix.shape[1] == opt['emb_dim']
 
 # load data
-print("Loading data from {} with batch size {}...".format(opt['data_dir'], opt['batch_size']))
-train_batch = DataLoader(opt['data_dir'] + '/train.json', opt['batch_size'], opt, vocab, evaluation=False)
-dev_batch = DataLoader(opt['data_dir'] + '/dev.json', opt['batch_size'], opt, vocab, evaluation=True)
+print("开始加载数据： 从 {} 中加载数据， 我们设置的batch_size大小为: {}...".format(opt['data_dir'], opt['batch_size']))
+if 'wiki80' in opt['data_dir']:
+    train_batch = DataLoader(opt['data_dir'] + '/wiki80_train.txt', opt['batch_size'], opt, vocab, evaluation=False, load_wiki80=True)
+    dev_batch = DataLoader(opt['data_dir'] + '/wiki80_val.txt', opt['batch_size'], opt, vocab, evaluation=True, load_wiki80=True)
+else:
+    train_batch = DataLoader(opt['data_dir'] + '/train.json', opt['batch_size'], opt, vocab, evaluation=False)
+    dev_batch = DataLoader(opt['data_dir'] + '/dev.json', opt['batch_size'], opt, vocab, evaluation=True)
 
 model_id = opt['id'] if len(opt['id']) > 1 else '0' + opt['id']
 model_save_dir = opt['save_dir'] + '/' + model_id
