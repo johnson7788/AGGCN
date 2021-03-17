@@ -13,8 +13,8 @@ from utils import vocab, constant, helper
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Prepare vocab for relation extraction.')
-    parser.add_argument('data_dir', help='TACRED directory.')
-    parser.add_argument('vocab_dir', help='Output vocab directory.')
+    parser.add_argument('--data_dir', help='TACRED directory.')
+    parser.add_argument('--vocab_dir', help='Output vocab directory.')
     parser.add_argument('--glove_dir', default='dataset/glove', help='GloVe directory.')
     parser.add_argument('--wv_file', default='glove.840B.300d.txt', help='GloVe vector file.')
     parser.add_argument('--wv_dim', type=int, default=300, help='GloVe vector dimension.')

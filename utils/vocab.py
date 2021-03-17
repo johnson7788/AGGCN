@@ -15,17 +15,27 @@ np.random.seed(1234)
 
 
 def build_embedding(wv_file, vocab, wv_dim):
+    """
+    根据glove生成新的vocab
+    :param wv_file: 原始的glove的文件， 'dataset/glove/glove.840B.300d.txt'
+    :param vocab: 生成的单词表
+    :param wv_dim: 嵌入维度
+    :return: 生成的嵌入
+    """
     vocab_size = len(vocab)
+    #初始化一个词嵌入
     emb = np.random.uniform(-1, 1, (vocab_size, wv_dim))
     emb[constant.PAD_ID] = 0 # <pad> should be all 0
-
+    #单词到id的映射
     w2id = {w: i for i, w in enumerate(vocab)}
     with open(wv_file, encoding="utf8") as f:
         for line in f:
             elems = line.split()
             token = ''.join(elems[0:-wv_dim])
+            #给嵌入赋值
             if token in w2id:
                 emb[w2id[token]] = [float(v) for v in elems[-wv_dim:]]
+    # print(f'生成的嵌入的维度是{emb.shape}')
     return emb
 
 

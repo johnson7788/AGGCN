@@ -37,7 +37,10 @@ chmod +x download.sh; ./download.sh
 然后准备单词和初始词向量。
 
 ```
-python3 prepare_vocab.py dataset/tacred dataset/vocab --glove_dir dataset/glove
+python3 prepare_vocab.py --data_dir dataset/tacred --vocab_dir dataset/vocab --glove_dir dataset/glove
+
+python3 prepare_vocab_wiki80.py --data_dir dataset/wiki80 --vocab_dir dataset/vocab --glove_dir dataset/glove
+
 ```
 这将把单词和单词向量以numpy矩阵的形式写到目录`dataset/vocab`中。
   
